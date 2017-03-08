@@ -6,8 +6,7 @@
 using namespace std;
 
 
-int main()
-{
+int main() {
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_TIMER *timer = NULL;
@@ -18,6 +17,7 @@ int main()
 	int time = 800;
 	int speed = 2;
 	//bool collect = false;
+	
 
 	//these two variables hold the x and y positions of the player
 	//initalize these variables to where you want your player to start
@@ -138,16 +138,17 @@ int main()
 				player_x = 50;
 				player_y = 50;
 				speed = 2;
+				lives -= 1;
 				//play devestating sound effect
 				//print a nasty message, flip display,pause for a second or two 
 			}
 			//SPEED BUMPS
-		if (player_x > 14 && player_x <70 && player_y > 235 && player_y < 293){ 
-			speed = 4;
-		}
+			if (player_x > 14 && player_x < 70 && player_y > 235 && player_y < 293) {
+				speed = 4;
+			}
 
-				
-			
+
+
 
 			//redraw at every tick of the timer
 			redraw = true;
@@ -235,28 +236,29 @@ int main()
 			//wall 1
 			al_draw_filled_rectangle(100, 100, 300, 200, al_map_rgb(200, 100, 0));
 
-			al_draw_filled_rectangle(200, 480, 100, 300, al_map_rgb(0, 150, 0)); 
+			al_draw_filled_rectangle(200, 480, 100, 300, al_map_rgb(0, 150, 0));
 
 			al_draw_filled_rectangle(400, 260, 150, 240, al_map_rgb(150, 0, 150));
 
-			al_draw_filled_rectangle(370, 5,400 , 250 , al_map_rgb(150, 0, 150));
+			al_draw_filled_rectangle(370, 5, 400, 250, al_map_rgb(150, 0, 150));
 
 			//SPEED BUMP
 			al_draw_filled_rectangle(45, 265, 70, 292, al_map_rgb(0, 0, 255));
 
 			al_flip_display();
 
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 100, 10, ALLEGRO_ALIGN_CENTRE, "lives = %i", lives);
-			al_draw_textf(font, al_map_rgb(255, 255, 255), 300, 10, ALLEGRO_ALIGN_CENTRE, "time = %i", time / 10);
+			//al_draw_textf(font, al_map_rgb(255, 255, 255), 100, 10, ALLEGRO_ALIGN_CENTRE, "lives = %i", lives);
+			//al_draw_textf(font, al_map_rgb(255, 255, 255), 300, 10, ALLEGRO_ALIGN_CENTRE, "time = %i", time / 10);
 
 
 			//kill game if lives is less than zero
-			if (lives <= 0 || time<0) {
+			if (lives = 0 || time < 0) {
 				al_clear_to_color(al_map_rgb(0, 0, 0));
 				al_draw_text(font, al_map_rgb(255, 0, 255), 350, 300, 0, "GAME OVER");
-
+				al_clear_to_color(al_map_rgb(0, 0, 0));
+			}
 		}
-	}
+	}// Game Loop
 
 	al_destroy_bitmap(player);
 	al_destroy_timer(timer);
@@ -264,4 +266,4 @@ int main()
 	al_destroy_event_queue(event_queue);
 
 	return 0;
-}
+} //Main

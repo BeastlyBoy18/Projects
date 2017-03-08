@@ -1,4 +1,12 @@
 #include <allegro5\allegro.h>
+#include <allegro5\allegro_font.h>
+#include <allegro5\allegro_ttf.h>
+#include <allegro5\allegro_audio.h>
+#include <allegro5\allegro_acodec.h>
+#include <allegro5\allegro_image.h>
+#include <iostream>
+using namespace std;
+
 
 int collision(int PaddleL_x, int PaddleL_y,int bouncer_x,int bouncer_y);
 int main() {
@@ -7,13 +15,22 @@ int main() {
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_BITMAP *PaddleL = NULL;
 	ALLEGRO_BITMAP *PaddleR = NULL;
-	ALLEGRO_BITMAP *bouncer = NULL;
+	ALLEGRO_BITMAP *bouncer = NULL; 
+	ALLEGRO_FONT *font = NULL;
+	ALLEGRO_SAMPLE *sample = NULL;
+	ALLEGRO_SAMPLE *sample2 = NULL;
+	ALLEGRO_SAMPLE_INSTANCE *instance = NULL;
+	
+
+	int PaddleLScore = 0;
+	int PaddleRScore = 0;
 	//these two variables hold the x and y positions of the PaddleL
 	//initalize these variables to where you want your PaddleL to start
-	float PaddleL_x = 50;
+
+	float PaddleL_x = 0;
 	float PaddleL_y = 50;
 
-	float PaddleR_x = 550;
+	float PaddleR_x = 610;
 	float PaddleR_y = 50;
 
 	float bouncer_x = 150;
@@ -31,23 +48,41 @@ int main() {
 
 	//this controls our game loop
 	bool doexit = false;
-
 	al_init();
+	al_init_ttf_addon();
+	al_init_image_addon();
+	al_init_font_addon();
+	al_install_audio();
+	al_init_acodec_addon();
+
 
 	//get the keyboard ready to use
 	al_install_keyboard();
 
+	al_reserve_samples(1);
+
 	timer = al_create_timer(.02);
+
+	sample = al_load_sample("Drop.wav");
+	if (sample == NULL)
+		cout << "didn't load yo" << endl;	
+
+	sample2 = al_load_sample("Cricket.wav");
+
+	instance = al_create_sample_instance(sample2);
+
+	bouncer = al_load_bitmap("kirby.png");
+	if (bouncer == NULL)
+		cout << "poop!";
 
 	display = al_create_display(640, 480);
 
 	PaddleL = al_create_bitmap(32, 70);
 	PaddleR = al_create_bitmap(32, 70);
-	bouncer = al_create_bitmap(32, 32);
-	// Bit Maps
-	al_set_target_bitmap(bouncer);
+	//bouncer = al_create_bitmap(32, 32);
 
-	al_clear_to_color(al_map_rgb(255, 100, 100));
+	// Bit Maps
+	
 
 	al_set_target_bitmap(PaddleL);
 
@@ -62,6 +97,9 @@ int main() {
 	al_clear_to_color(al_map_rgb(255, 200, 100));
 
 	event_queue = al_create_event_queue();
+
+	//Load Font
+	font = al_load_ttf_font("Mermaid Swash Caps.ttf", 20, 0);
 
 	//these lines tell teh event source what to look for
 	al_register_event_source(event_queue, al_get_display_event_source(display));
@@ -95,26 +133,18 @@ int main() {
 				//flip the y direction
 				bouncer_dy = -bouncer_dy;
 			}
-
+			if (bouncer_y < PaddleR_y) {
+				PaddleR_y = PaddleR_y - 3;
+			}
+			if (bouncer_y > PaddleR_y) {
+				PaddleR_y = PaddleR_y + 3;
+			}
 			//really important code!
 			//move the box in a diagonal
 			bouncer_x += bouncer_dx;
 			bouncer_y += bouncer_dy;
 
-			//if an event happened, you better redraw
-			redraw = true;
-		}
-
-		//////////////////////////////////////////////////////////////////
-		//kill program if the user clicks the exit button
-		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			break;
-		}
-
-		//////////////////////////////////////////////////////////////////////////////////////////////////
-		//here's the movement algorithm
-
-		if (ev.type == ALLEGRO_EVENT_TIMER) {
+			
 			//if the up button is pressed AND we're still below the top wall,
 			//move the box "up" by 4 pixels
 			if (key[0] && PaddleL_y >= 0) {
@@ -136,6 +166,35 @@ int main() {
 			
 			//redraw at every tick of the timer
 			redraw = true;
+
+			//Audio Stuff
+
+			al_set_sample_instance_playmode(instance, ALLEGRO_PLAYMODE_LOOP);
+			al_attach_sample_instance_to_mixer(instance, al_get_default_mixer());
+			al_play_sample_instance(instance);
+
+			//COLLISION IF STATEMENTS
+				if (bouncer_x < 0 && bouncer_y >= 0 && bouncer_y <= 480) {
+					PaddleRScore = PaddleRScore + 1;
+				}
+				if (bouncer_x >= 610 && bouncer_y >= 0 && bouncer_y <= 480) {
+					PaddleLScore = PaddleLScore + 1;
+				}
+			
+				if (collision(PaddleL_x, PaddleL_y, bouncer_x, bouncer_y)) {
+					bouncer_dx = -bouncer_dx;
+					al_play_sample(sample, 1.0, 1.0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+					cout << "boing!";
+					
+				}
+
+
+				else if (collision(PaddleR_x, PaddleR_y, bouncer_x, bouncer_y)) {
+					bouncer_dx = -bouncer_dx;
+					al_play_sample(sample, 1.0, 1.0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
+					cout << "boing!";
+				}
+			
 		}
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -214,11 +273,17 @@ int main() {
 
 			al_draw_bitmap(PaddleR, PaddleR_x, PaddleR_y, 0);
 
-			//at the coordinate position bouncer_x, bouncer_y
+			
+
+		// Ball Picture
+			//al_convert_mask_to_alpha(bouncer, al_map_rgb (0, 0, 0));
 			al_draw_bitmap(bouncer, bouncer_x, bouncer_y, 0);
 
+
+			//DRAW YOUR TEXT
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 90, 40, ALLEGRO_ALIGN_LEFT, "%i", PaddleLScore);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 540, 40, ALLEGRO_ALIGN_RIGHT, "%i", PaddleRScore);
 			al_flip_display();
-			
 		}
 }
 
@@ -226,6 +291,10 @@ al_destroy_bitmap(PaddleL);
 al_destroy_timer(timer);
 al_destroy_display(display);
 al_destroy_event_queue(event_queue);
+al_destroy_bitmap(bouncer);
+al_destroy_sample(sample);
+
+
 
 return 0;
 
@@ -233,7 +302,14 @@ return 0;
 
 }
 int collision(int PaddleL_x, int PaddleL_y, int bouncer_x, int bouncer_y) {
-	if (PaddleL_x > bouncer_x + 32) {
-
+	if ((PaddleL_x > bouncer_x + 32) ||
+		(PaddleL_x + 32 < bouncer_x ) ||
+		(PaddleL_y  > bouncer_y + 32) ||
+		(PaddleL_y + 70 < bouncer_y))	
+	{
+		return 0;//no collision
 	}
+	else
+		return 1; // collision
 }
+
