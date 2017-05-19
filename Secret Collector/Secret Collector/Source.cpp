@@ -14,9 +14,9 @@ int main() {
 	ALLEGRO_FONT *font = NULL;
 
 	int lives = 3;
-	int time = 800;
 	int speed = 2;
-	//bool collect = false;
+	int time = 1000;
+	bool collect = false;
 	
 
 	//these two variables hold the x and y positions of the player
@@ -36,6 +36,8 @@ int main() {
 
 	al_init();
 	al_init_primitives_addon();
+	al_init_font_addon();
+	al_init_ttf_addon();
 
 	//get the keyboard ready to use
 	al_install_keyboard();
@@ -56,6 +58,8 @@ int main() {
 	event_queue = al_create_event_queue();
 
 	//these lines tell teh event source what to look for
+	font = al_load_ttf_font("Mermaid Swash Caps.ttf", 20, 0);
+
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
@@ -73,7 +77,7 @@ int main() {
 	//OR the mouse closing the display
 	while (!doexit)
 	{
-		time--;
+		time = time - 2;
 		//prints out player's coordinates
 		cout << player_x << " , " << player_y << endl;
 
@@ -146,7 +150,8 @@ int main() {
 			if (player_x > 14 && player_x < 70 && player_y > 235 && player_y < 293) {
 				speed = 4;
 			}
-
+			//Collect Brick
+			if (player)
 
 
 
@@ -245,14 +250,21 @@ int main() {
 			//SPEED BUMP
 			al_draw_filled_rectangle(45, 265, 70, 292, al_map_rgb(0, 0, 255));
 
+			//Collect Block
+			al_draw_filled_rectangle(460, 350, 490, 380, al_map_rgb(150, 120, 150));
+
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 100, 10, ALLEGRO_ALIGN_CENTRE, "lives = %i", lives);
+			al_draw_textf(font, al_map_rgb(255, 255, 255), 300, 10, ALLEGRO_ALIGN_CENTRE, "time = %i", time / 10);
+			
 			al_flip_display();
 
-			//al_draw_textf(font, al_map_rgb(255, 255, 255), 100, 10, ALLEGRO_ALIGN_CENTRE, "lives = %i", lives);
-			//al_draw_textf(font, al_map_rgb(255, 255, 255), 300, 10, ALLEGRO_ALIGN_CENTRE, "time = %i", time / 10);
+
+		
 
 
 			//kill game if lives is less than zero
-			if (lives = 0 || time < 0) {
+			if (lives == 0 || time == 0) {
+				break;
 				al_clear_to_color(al_map_rgb(0, 0, 0));
 				al_draw_text(font, al_map_rgb(255, 0, 255), 350, 300, 0, "GAME OVER");
 				al_clear_to_color(al_map_rgb(0, 0, 0));

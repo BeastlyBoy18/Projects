@@ -85,11 +85,9 @@ int main() {
 	
 
 	al_set_target_bitmap(PaddleL);
-
 	al_clear_to_color(al_map_rgb(255, 255, 255));
 
 	al_set_target_bitmap(PaddleR);
-
 	al_clear_to_color(al_map_rgb(100, 255, 255));
 
 	al_set_target_bitmap(al_get_backbuffer(display));
@@ -114,6 +112,13 @@ int main() {
 	al_flip_display();
 
 	al_start_timer(timer);
+
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_textf(font, al_map_rgb(255, 255, 255), 540, 40, ALLEGRO_ALIGN_RIGHT, "PONG!!");
+	al_flip_display();
+	//dumb sound effect here
+	al_rest(5);
+
 
 	//so the game loop is set to act on "ticks" of the timer OR keyboard presses
 	//OR the mouse closing the display
@@ -283,9 +288,20 @@ int main() {
 			//DRAW YOUR TEXT
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 90, 40, ALLEGRO_ALIGN_LEFT, "%i", PaddleLScore);
 			al_draw_textf(font, al_map_rgb(255, 255, 255), 540, 40, ALLEGRO_ALIGN_RIGHT, "%i", PaddleRScore);
+
+			if (PaddleLScore > 20 || PaddleRScore >20)
+				break;
+
 			al_flip_display();
 		}
-}
+}//end game loop
+al_clear_to_color(al_map_rgb(0, 0, 0));
+al_draw_textf(font, al_map_rgb(255, 255, 255), 540, 40, ALLEGRO_ALIGN_RIGHT, "GAME OVER");
+al_flip_display();
+//dumb sound effect here
+al_rest(5);
+
+
 
 al_destroy_bitmap(PaddleL);
 al_destroy_timer(timer);
